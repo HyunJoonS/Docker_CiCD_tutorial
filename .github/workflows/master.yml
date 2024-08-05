@@ -2,9 +2,9 @@ name: CI/CD
 
 on:
   push:
-    branches: [ "matser" ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ "matser" ]
+    branches: [ "master" ]
 
 permissions:
   contents: read
