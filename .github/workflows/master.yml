@@ -13,6 +13,9 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: my-repository:react-dev # 올리고자 하는 저장소:태그 로 바꿔줄것
+      SSH_USER_NAME: ubuntu
 
     steps:
     - uses: actions/checkout@v3
@@ -28,17 +31,17 @@ jobs:
       with:
         context: .
         push: true
-        tags: ${{ secrets.DOCKER_USERNAME }}/my-repository:react-dev
+        tags: ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}
 
     - name: Deploy to AWS EC2
       uses: appleboy/ssh-action@v0.1.10
       with:
         host: ${{ secrets.HOST }}
-        username: ubuntu
+        username: ${{ env.SSH_USER_NAME }}
         key: ${{ secrets.PRIVATE_KEY }} # pem key
         script: |
-          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/my-repository:react-dev
+          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}
           sudo docker stop $(docker ps -a -q)
-          sudo docker run -d -p 3000:3000 ${{ secrets.DOCKER_USERNAME }}/my-repository:react-dev
+          sudo docker run -d -p 3000:3000 ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}
           sudo docker rm $(docker ps --filter 'status=exited' -a -q)
           sudo docker image prune -a -f
