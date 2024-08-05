@@ -34,7 +34,7 @@ jobs:
       uses: appleboy/ssh-action@v0.1.10
       with:
         host: ${{ secrets.HOST }}
-        username: ec2-user
+        username: ubuntu
         key: ${{ secrets.PRIVATE_KEY }} # pem key
         script: |
           docker pull ${{ secrets.DOCKER_USERNAME }}/my-repository:react-dev
