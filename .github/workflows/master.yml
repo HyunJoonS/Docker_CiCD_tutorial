@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       IMAGE_NAME: my-repository:react-dev # 올리고자 하는 저장소:태그 로 바꿔줄것
+      CONTAINER_NAME: react-container # 컨테이너 이름 설정
       SSH_USER_NAME: ubuntu
 
     steps:
@@ -40,8 +41,15 @@ jobs:
         username: ${{ env.SSH_USER_NAME }}
         key: ${{ secrets.PRIVATE_KEY }} # pem key
         script: |
+          # Docker 이미지 풀
           sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}
-          sudo docker stop $(docker ps -a -q)
+
+          # 컨테이너 중지 및 제거 (컨테이너가 없으면 무시됨)
+          sudo docker stop ${{ env.CONTAINER_NAME }} || true
+          sudo docker rm ${{ env.CONTAINER_NAME }} || true
+
+          # 새로운 컨테이너 실행
           sudo docker run -d -p 3000:3000 ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}
-          sudo docker rm $(docker ps --filter 'status=exited' -a -q)
+
+          # 사용하지 않는 이미지 제거
           sudo docker image prune -a -f
